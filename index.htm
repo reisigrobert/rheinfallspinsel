@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <meta name="title" content="Rheinfallspinsel - Das lustige Spießroulette XD">
-    <meta name="image" content="/rheinfallspinsel-logo.jpg"> 
-    <link rel="icon" type="image/svg" href="/rheinfallspinsel-logo.svg">
+<meta name="title" content="Rheinfallspinsel - Das lustige Spießroulette XD">
+<meta name="image" content="/rheinfallspinsel-logo.jpg"> 
+<link rel="icon" type="image/svg" href="/rheinfallspinsel-logo.svg">
 <title>Rheinfallspinsel</title>
 <style>
     body {
@@ -109,16 +109,22 @@
     const additionalWords = ["Rheinfallspinsel", "Neuss", "Bier", "Quirinus-Gymnasium", "Schützenlust", "Weizen", "Fässchen", "Zigarre"];
     const backgroundWords = document.getElementById('backgroundWords');
     const bubbles = document.getElementById('bubbles');
+    const maxItems = 200; // Maximum number of items on the screen
+
+    let currentItems = 0;
 
     function addBackgroundWord(word) {
+        if (currentItems >= maxItems) return; // Check if max items reached
         const wordDiv = document.createElement('div');
         wordDiv.className = 'flyingWord';
         wordDiv.textContent = word;
         setupAnimation(wordDiv);
         backgroundWords.appendChild(wordDiv);
+        currentItems++;
     }
 
     function addBubble() {
+        if (currentItems >= maxItems) return; // Check if max items reached
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
         const size = Math.random() * 20 + 10; // Bubble size between 10px and 30px
@@ -127,6 +133,7 @@
         bubble.style.backgroundColor = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`;
         setupAnimation(bubble);
         bubbles.appendChild(bubble);
+        currentItems++;
     }
 
     function setupAnimation(element) {
@@ -142,11 +149,15 @@
         element.style.animationDuration = `${duration}s`;
     }
 
-    setInterval(addBubble, 500); // Add a bubble every half second
+    setInterval(() => {
+        if (currentItems < maxItems) addBubble();
+    }, 500); // Add a bubble every half second
 
     names.concat(additionalWords).forEach(word => {
-        addBackgroundWord(word);
-        addBackgroundWord(word); // Double the words for more background activity
+        if (currentItems < maxItems) {
+            addBackgroundWord(word);
+            addBackgroundWord(word); // Double the words for more background activity
+        }
     });
 
     const spinners = document.querySelectorAll('.spinner');
@@ -170,4 +181,3 @@
 </script>
 </body>
 </html>
-
