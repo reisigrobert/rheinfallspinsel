@@ -1,142 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Fortune</title>
-   
-    <style>
-
-/* style.css */
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #121212;
-    color: white;
-    margin: 0;
-}
-
-.wheel-container {
-    width: 500px;
-    height: 500px;
-    position: relative;
-}
-
-#wheel {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-}
-
-.segment {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    clip-path: polygon(50% 50%, 100% 0, 100% 100%);
-    transform-origin: 50% 50%;
-}
-
-.hidden {
-    display: none;
-}
-
-#result-popup {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background: rgba(0,0,0,0.8);
-    border-radius: 10px;
-    font-size: 24px;
-    z-index: 10;
-}
-
-/* Generate unique transformations for each segment */
-.segment:nth-child(1) { transform: rotate(0deg); }
-.segment:nth-child(2) { transform: rotate(22.5deg); }
-.segment:nth-child(3) { transform: rotate(45deg); }
-.segment:nth-child(4) { transform: rotate(67.5deg); }
-.segment:nth-child(5) { transform: rotate(90deg); }
-.segment:nth-child(6) { transform: rotate(112.5deg); }
-.segment:nth-child(7) { transform: rotate(135deg); }
-.segment:nth-child(8) { transform: rotate(157.5deg); }
-.segment:nth-child(9) { transform: rotate(180deg); }
-.segment:nth-child(10) { transform: rotate(202.5deg); }
-.segment:nth-child(11) { transform: rotate(225deg); }
-.segment:nth-child(12) { transform: rotate(247.5deg); }
-.segment:nth-child(13) { transform: rotate(270deg); }
-.segment:nth-child(14) { transform: rotate(292.5deg); }
-.segment:nth-child(15) { transform: rotate(315deg); }
-.segment:nth-child(16) { transform: rotate(337.5deg); }
-
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Fortune Wheel</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+        background: radial-gradient(circle, rgba(255,255,255,0) 60%, rgba(0,123,255,0.1) 100%);
+    }
+    #backgroundWords, #bubbles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+    .flyingWord, .bubble {
+        position: absolute;
+        animation: float linear infinite;
+        font-size: 18px;
+        opacity: 0.7;
+    }
+    .bubble {
+        border-radius: 50%;
+        background-color: rgba(255,0,0,0.7);
+        animation-duration: 10s;
+    }
+    @keyframes float {
+        0% { transform: translate(var(--start-x), var(--start-y)); }
+        100% { transform: translate(var(--end-x), var(--end-y)); }
+    }
+    .spinner {
+        width: 300px;
+        height: 50px;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        color: white;
+        z-index: 100;
+        position: relative;
+        margin-bottom: 20px;
+    }
+    #nameSpinner {
+        background: linear-gradient(to right, #007bff, #0056b3);
+    }
+    #numberSpinner {
+        background: linear-gradient(to right, #ff0000, #b30000); /* Changed to red */
+    }
+    .spinner::before {
+        content: '';
+        position: absolute;
+        top: -5px; left: -5px; right: -5px; bottom: -5px;
+        z-index: -1;
+        background: linear-gradient(45deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+        border-radius: 30px;
+    }
+    .spinner::after {
+        content: '';
+        position: absolute;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .spinner:hover::after {
+        opacity: 1;
+    }
+    .disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+</style>
 </head>
 <body>
-    <div class="wheel-container">
-        <div id="wheel">
-            <!-- Wheel segments -->
-            <!-- Each segment has an ID for JavaScript interaction and a unique class for styling -->
-            <div class="segment" style="background-color: #f44336;">Alice</div>
-            <div class="segment" style="background-color: #e91e63;">Bob</div>
-            <div class="segment" style="background-color: #9c27b0;">Charlie</div>
-            <div class="segment" style="background-color: #673ab7;">Diana</div>
-            <div class="segment" style="background-color: #3f51b5;">Edward</div>
-            <div class="segment" style="background-color: #2196f3;">Fiona</div>
-            <div class="segment" style="background-color: #03a9f4;">George</div>
-            <div class="segment" style="background-color: #00bcd4;">Hannah</div>
-            <div class="segment" style="background-color: #009688;">Ian</div>
-            <div class="segment" style="background-color: #4caf50;">Julia</div>
-            <div class="segment" style="background-color: #8bc34a;">Kevin</div>
-            <div class="segment" style="background-color: #cddc39;">Lily</div>
-            <div class="segment" style="background-color: #ffeb3b;">Mike</div>
-            <div class="segment" style="background-color: #ffc107;">Nancy</div>
-            <div class="segment" style="background-color: #ff9800;">Oscar</div>
-            <div class="segment" style="background-color: #ff5722;">Patty</div>
-        </div>
-    </div>
-    <div id="result-popup" class="hidden">Result</div>
-    
+<div id="backgroundWords">
+    <!-- Random and name words floating -->
+</div>
+<div id="bubbles">
+    <!-- Bubbles moving in the background -->
+</div>
+<div class="spinner" id="numberSpinner">Click to Spin for Number</div>
+<div class="spinner" id="nameSpinner">Click to Spin for Name</div>
+
 <script>
+    const names = [
+        "Ferdinand I (Reytschack)", "Jonas", "S.M. Johannes B. Beeten", "Enno", "Rolls Royce Robert",
+        "Ferdinand II (Henze)", "Fréddé", "Jakob II (Alberts)", "Frisch", "Ole", "Kalle", "Maxi",
+        "Max I (Zimmer)", "Leonard Wehrmeister", "Michi", "Fabi"
+    ];
+    const additionalWords = ["Rheinfallspinsel", "Neuss", "Bier", "Quirinus-Gymnasium", "Schützenlust", "Weizen", "Fässchen", "Zigarre"];
+    const backgroundWords = document.getElementById('backgroundWords');
+    const bubbles = document.getElementById('bubbles');
 
-// script.js
-document.getElementById('wheel').addEventListener('click', function() {
-    let degrees = Math.floor(Math.random() * 360) + 720; // Random spin + at least two full rotations
-    this.style.transition = 'transform 4s ease-out';
-    this.style.transform = `rotate(${degrees}deg)`;
+    function addBackgroundWord(word) {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'flyingWord';
+        wordDiv.textContent = word;
+        setupAnimation(wordDiv);
+        backgroundWords.appendChild(wordDiv);
+    }
 
-    // Timeout to reset the wheel position quietly
-    setTimeout(() => {
-        this.style.transition = 'none';
-        this.style.transform = 'rotate(0deg)';
-    }, 4000);
+    function addBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 20 + 10; // Bubble size between 10px and 30px
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.backgroundColor = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`;
+        setupAnimation(bubble);
+        bubbles.appendChild(bubble);
+    }
 
-    // Determine the winner based on the degrees
-    let segmentIndex = Math.floor((degrees % 360) / 22.5);
-    let selectedSegment = this.children[segmentIndex];
-    let resultPopup = document.getElementById('result-popup');
+    function setupAnimation(element) {
+        const duration = Math.random() * 5 + 5; // 5 to 10 seconds
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        const endX = Math.random() * window.innerWidth;
+        const endY = Math.random() * window.innerHeight;
+        element.style.setProperty('--start-x', `${startX}px`);
+        element.style.setProperty('--start-y', `${startY}px`);
+        element.style.setProperty('--end-x', `${endX}px`);
+        element.style.setProperty('--end-y', `${endY}px`);
+        element.style.animationDuration = `${duration}s`;
+    }
 
-    setTimeout(() => {
-        resultPopup.textContent = selectedSegment.textContent;
-        resultPopup.classList.remove('hidden');
+    setInterval(addBubble, 500); // Add a bubble every half second
+
+    names.concat(additionalWords).forEach(word => {
+        addBackgroundWord(word);
+        addBackgroundWord(word); // Double the words for more background activity
+    });
+
+    const spinners = document.querySelectorAll('.spinner');
+    spinners.forEach(spinner => spinner.addEventListener('click', () => toggleSpinner(spinner)));
+
+    function toggleSpinner(spinner) {
+        const options = spinner.id === 'nameSpinner' ? names : Array.from({length: 10}, (_, i) => i + 1);
+        if (spinner.classList.contains('disabled')) return;
+
+        spinner.classList.add('disabled');
+        let interval = setInterval(() => {
+            const currentIndex = Math.floor(Math.random() * options.length);
+            spinner.textContent = options[currentIndex];
+        }, 100);
+
         setTimeout(() => {
-            resultPopup.classList.add('hidden');
-        }, 5000);
-    }, 4000);
-});
-
-
+            clearInterval(interval);
+            spinner.classList.remove('disabled');
+        }, Math.random() * 12000 + 3000);
+    }
 </script>
-
-
 </body>
 </html>
