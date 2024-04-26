@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="title" content="Rheinfallspinsel - Das lustige Spießroulette XD">
+<meta name="title" content="Das lustige Spießroulette">
 <meta name="image" content="/rheinfallspinsel-logo.jpg"> 
 <link rel="icon" type="image/svg" href="/rheinfallspinsel-logo.svg">
 <title>Rheinfallspinsel</title>
@@ -63,7 +63,7 @@
         background: linear-gradient(to right, #007bff, #0056b3);
     }
     #numberSpinner {
-        background: linear-gradient(to right, #ff0000, #b30000); /* Changed to red */
+        background: linear-gradient(to right, #ff0000, #b30000);
     }
     .spinner::before {
         content: '';
@@ -88,33 +88,74 @@
         pointer-events: none;
         opacity: 0.5;
     }
+    .winning-display {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: gold;
+        z-index: 200;
+        text-align: center;
+        font-size: 48px;
+        line-height: 20vh;
+        animation: spin 6s infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        50% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+    }
 </style>
 </head>
 <body>
-<div id="backgroundWords">
-    <!-- Random and name words floating -->
-</div>
-<div id="bubbles">
-    <!-- Bubbles moving in the background -->
-</div>
+<div id="backgroundWords"></div>
+<div id="bubbles"></div>
 <div class="spinner" id="numberSpinner">Nummer</div>
 <div class="spinner" id="nameSpinner">Name</div>
-
+<div class="winning-display" id="winDisplay"><span id="winName"></span>, <span id="winNumber"></span> Striche<div id="randomPhrase"></div></div>
 <script>
     const names = [
-        "Ferdinand I (Reytschack)", "Jonas", "S.M. Johannes B. Beeten", "Enno", "Rolls Royce Robert",
+        "Ferdinand I (Reytschack)", "Jonas von der Feuerwehr", "S.M. Johannes B. Beeten", "Enno aus Köln", "Rolls Royce Robert",
         "Ferdinand II (Henze)", "Fréddé", "Jakob II (Alberts)", "Frisch", "Ole", "Kalle", "Maxi",
-        "Max I (Zimmer)", "Leonard Wehrmeister", "Michi", "Fabi"
+        "Max I (Zimmer)", "Leonard Wehrmeister", "Michi, auch von der Feuerwehr", "Fabi der Schnelle"
     ];
-    const additionalWords = ["Rheinfallspinsel", "Neuss", "Bier", "Quirinus-Gymnasium", "Schützenlust", "Weizen", "Fässchen", "Zigarre"];
+    const additionalWords = ["Rheinfallspinsel", "Neuss", "Bier", "Quirinus-Gymnasium", "Schützenlust", "Weizen", "Fässchen", "Zigarre", "Für Deutschland", "Der Spieß ist ein ******", "Finger im Po, Mexiko", "Pils", "Altbier", "Kölsch", "Skifahren", "Pistenbulli", "Bobrennen"];
+    const phrases = [
+        "Wow, du bist so unglaublich talentiert.",
+        "Herzlichen Glückwunsch! Deine Fähigkeit, alle anderen zu überraschen, ist wirklich beeindruckend.",
+        "Bravo! Deine Leistung ist wirklich außergewöhnlich.",
+        "Ein Meister ist geboren!",
+        "Du hast es geschafft, allen anderen zu beweisen, dass du immer im Mittelpunkt stehen kannst.",
+        "Großartig! Deine Fähigkeiten sind bewundernswert.",
+        "Hervorragend! Du bist wie ein lebendiger Beweis dafür, dass nicht alles auf der Welt schlecht ist.",
+        "Warum so wenig?",
+        "Nochmal!!!",
+        "Mehr, mehr, mehr …",
+        "Herrlich!",
+        "Gratulation! Du bist der wahre Held der unerwarteten Wendungen.",
+        "Ein weiterer Höhepunkt in deiner Karriere bei den Rheinfallspinseln.",
+        "Fantastisch!",
+        "Wie hast du das nur geschafft?",
+        "Du machst uns alle stolz.",
+        "Ein wahrer Glückspilz.",
+        "Hochmut kommt vor dem Fall.",
+        "Das ist fair.",
+        "Super! Deine Eltern wären stolz auf dich.",
+        "Kaum zu glauben."
+    ];
     const backgroundWords = document.getElementById('backgroundWords');
     const bubbles = document.getElementById('bubbles');
-    const maxItems = 200; // Maximum number of items on the screen
-
+    const maxItems = 200;
     let currentItems = 0;
+    let nameSelected = false;
+    let numberSelected = false;
+    let lastSelectedName = '';
+    let lastSelectedNumber = '';
 
     function addBackgroundWord(word) {
-        if (currentItems >= maxItems) return; // Check if max items reached
+        if (currentItems >= maxItems) return;
         const wordDiv = document.createElement('div');
         wordDiv.className = 'flyingWord';
         wordDiv.textContent = word;
@@ -124,10 +165,10 @@
     }
 
     function addBubble() {
-        if (currentItems >= maxItems) return; // Check if max items reached
+        if (currentItems >= maxItems) return;
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
-        const size = Math.random() * 20 + 10; // Bubble size between 10px and 30px
+        const size = Math.random() * 20 + 10;
         bubble.style.width = `${size}px`;
         bubble.style.height = `${size}px`;
         bubble.style.backgroundColor = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`;
@@ -137,7 +178,7 @@
     }
 
     function setupAnimation(element) {
-        const duration = Math.random() * 5 + 5; // 5 to 10 seconds
+        const duration = Math.random() * 5 + 5;
         const startX = Math.random() * window.innerWidth;
         const startY = Math.random() * window.innerHeight;
         const endX = Math.random() * window.innerWidth;
@@ -151,32 +192,70 @@
 
     setInterval(() => {
         if (currentItems < maxItems) addBubble();
-    }, 500); // Add a bubble every half second
+    }, 500);
 
     names.concat(additionalWords).forEach(word => {
         if (currentItems < maxItems) {
             addBackgroundWord(word);
-            addBackgroundWord(word); // Double the words for more background activity
+            addBackgroundWord(word);
         }
     });
 
     const spinners = document.querySelectorAll('.spinner');
-    spinners.forEach(spinner => spinner.addEventListener('click', () => toggleSpinner(spinner)));
+    spinners.forEach(spinner => {
+        spinner.addEventListener('click', () => {
+            toggleSpinner(spinner);
+        });
+    });
 
     function toggleSpinner(spinner) {
-        const options = spinner.id === 'nameSpinner' ? names : Array.from({length: 10}, (_, i) => i + 1);
-        if (spinner.classList.contains('disabled')) return;
-
+        const isNameSpinner = spinner.id === 'nameSpinner';
+        const options = isNameSpinner ? names : Array.from({length: 10}, (_, i) => i + 1);
         spinner.classList.add('disabled');
         let interval = setInterval(() => {
             const currentIndex = Math.floor(Math.random() * options.length);
             spinner.textContent = options[currentIndex];
+            if (isNameSpinner) {
+                lastSelectedName = options[currentIndex];
+            } else {
+                lastSelectedNumber = options[currentIndex];
+            }
         }, 100);
 
         setTimeout(() => {
             clearInterval(interval);
             spinner.classList.remove('disabled');
+            if (isNameSpinner) {
+                nameSelected = true;
+            } else {
+                numberSelected = true;
+            }
+            if (nameSelected && numberSelected) {
+                showWinningDisplay();
+            }
         }, Math.random() * 12000 + 3000);
+    }
+
+    function showWinningDisplay() {
+        const winDisplay = document.getElementById('winDisplay');
+        const winName = document.getElementById('winName');
+        const winNumber = document.getElementById('winNumber');
+        const randomPhrase = document.getElementById('randomPhrase');
+        
+        winName.textContent = lastSelectedName;
+        winNumber.textContent = lastSelectedNumber;
+        randomPhrase.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+
+        winDisplay.style.display = 'block';
+        setTimeout(() => {
+            winDisplay.style.display = 'none';
+            nameSelected = false;
+            numberSelected = false;
+            lastSelectedName = '';
+            lastSelectedNumber = '';
+            document.getElementById('numberSpinner').textContent = 'Nummer';
+            document.getElementById('nameSpinner').textContent = 'Name';
+        }, 12000);
     }
 </script>
 </body>
