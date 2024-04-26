@@ -98,9 +98,12 @@
         background-color: gold;
         z-index: 200;
         text-align: center;
-        font-size: 48px;
-        line-height: 20vh;
+        font-size: 32px;
+        line-height: 10vh;
         animation: spin 6s infinite;
+    }
+    #randomPhrase {
+    font-size: 20px;
     }
     @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -114,7 +117,7 @@
 <div id="bubbles"></div>
 <div class="spinner" id="numberSpinner">Nummer</div>
 <div class="spinner" id="nameSpinner">Name</div>
-<div class="winning-display" id="winDisplay"><span id="winName"></span>, <span id="winNumber"></span> Striche<div id="randomPhrase"></div></div>
+<div class="winning-display" id="winDisplay"><div><p> </p></div><span id="winName"></span>, <span id="winNumber"></span> Striche<div id="randomPhrase"></div></div>
 <script>
     const names = [
         "Ferdinand I (Reytschack)", "Jonas von der Feuerwehr", "S.M. Johannes B. Beeten", "Enno aus Köln", "Rolls Royce Robert",
